@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  api:
+    build: .
+    container_name: house-price-api
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_PATH=/app/artifacts/model.joblib
+      - MLFLOW_TRACKING_URI=/app/mlruns
+    volumes:
+      - ./artifacts:/app/artifacts
+      - ./mlruns:/app/mlruns
+      - ./train.csv:/app/train.csv
+    depends_on:
+      - mlflow
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.16.0
+    container_name: mlflow-ui
+    command: mlflow ui --backend-store-uri /mlruns --host 0.0.0.0 --port 5000
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/mlruns
